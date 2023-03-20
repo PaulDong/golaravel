@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 func doAuth() error {
@@ -36,6 +38,18 @@ func doAuth() error {
 	if err != nil {
 		exitGracefully(err)
 	}
+	err = copyFileFromTemplate("templates/middleware/user.go.txt", gol.RootPath+"/middleware/user.go")
+	if err != nil {
+		exitGracefully(err)
+	}
+	err = copyFileFromTemplate("templates/middleware/token.go.txt", gol.RootPath+"/middleware/token.go")
+	if err != nil {
+		exitGracefully(err)
+	}
+
+	color.Yellow("  - users, tokens, and remember_bokens migrations created and executed")
+	color.Yellow("  - user and token models created")
+	color.Yellow("  - auth middleware created")
 
 	return nil
 }
