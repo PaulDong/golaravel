@@ -50,6 +50,8 @@ func doAuth() error {
 	color.Yellow("  - users, tokens, and remember_bokens migrations created and executed")
 	color.Yellow("  - user and token models created")
 	color.Yellow("  - auth middleware created")
+	color.Yellow("")
+	color.Yellow("Don't forget to add user and token models in data/models.go, and to add appropriate middleware to your routes")
 
 	return nil
 }

@@ -65,6 +65,7 @@ func showHelp() {
   migrate force         - runs all down migration 1 
   make migration <name> - create two new up and down migration in the migration folder
   make auth             - creates and runs migrations for authentication tables, and creates models and middleware
-  
+  make handler <name>   - creates a stub handler in the handlers directory
+  make model <name>     - creates a new model in the models directory
   `)
 }
