@@ -35,7 +35,7 @@ func doMake(arg2, arg3 string) error {
 			exitGracefully(err)
 		}
 	case "model":
-		if arg3 =="" {
+		if arg3 == "" {
 			exitGracefully(errors.New("you must give the model a name"))
 		}
 		data, err := templateFS.ReadFile("templates/data/model.go.txt")
@@ -63,7 +63,7 @@ func doMake(arg2, arg3 string) error {
 			exitGracefully(err)
 		}
 	case "handler":
-		if arg3 =="" {
+		if arg3 == "" {
 			exitGracefully(errors.New("you must give the handler a name"))
 		}
 		fileName := gol.RootPath + "/handlers/" + strings.ToLower(arg3) + ".go"
@@ -77,6 +77,11 @@ func doMake(arg2, arg3 string) error {
 		handler := string(data)
 		handler = strings.ReplaceAll(handler, "$HANDLERNAME$", strcase.ToCamel(arg3))
 		err = os.WriteFile(fileName, []byte(handler), 0644)
+		if err != nil {
+			exitGracefully(err)
+		}
+	case "session":
+		err := doSessionTable()
 		if err != nil {
 			exitGracefully(err)
 		}
