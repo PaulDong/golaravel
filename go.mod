@@ -11,6 +11,7 @@ require (
 	github.com/gertd/go-pluralize v0.2.1
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/golang-migrate/migrate/v4 v4.15.2
+	github.com/gomodule/redigo v1.8.9
 	github.com/jackc/pgconn v1.14.0
 	github.com/jackc/pgx/v4 v4.18.0
 	github.com/joho/godotenv v1.5.1

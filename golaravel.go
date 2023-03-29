@@ -9,10 +9,12 @@ import (
 	"time"
 
 	"github.com/CloudyKit/jet/v6"
+	"github.com/PaulDong/golaravel/cache"
 	"github.com/PaulDong/golaravel/render"
 	"github.com/PaulDong/golaravel/session"
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
+	"github.com/gomodule/redigo/redis"
 	"github.com/joho/godotenv"
 )
 
@@ -32,6 +34,7 @@ type Golaravel struct {
 	DB            Database
 	config        config
 	EncryptionKey string
+	Cache         cache.Cache
 }
 
 type config struct {
@@ -40,6 +43,7 @@ type config struct {
 	cookie      cookieConfig
 	sessionType string
 	database    databaseConfig
+	redis       redisConfig
 }
 
 func (g *Golaravel) New(rootPath string) error {
@@ -76,6 +80,11 @@ func (g *Golaravel) New(rootPath string) error {
 			Pool:     db,
 		}
 	}
+
+	if os.Getenv("CACHE") == "redis" {
+		myRedisCache := g.createClientRedisCache()
+		g.Cache = myRedisCache
+	}
 	g.InfoLog = infoLog
 	g.ErrorLog = errorLog
 
@@ -98,6 +107,11 @@ func (g *Golaravel) New(rootPath string) error {
 		database: databaseConfig{
 			database: os.Getenv("DATABASE_TYPE"),
 			dsn:      g.BuildDSN(),
+		},
+		redis: redisConfig{
+			host:     os.Getenv("REDIS_HOST"),
+			password: os.Getenv("REDIS_PASSWORD"),
+			prefix:   os.Getenv("REDIS_PREFIX"),
 		},
 	}
 
@@ -185,6 +199,30 @@ func (g *Golaravel) createRenderer() {
 	g.Render = &myRenderer
 }
 
+func (g *Golaravel) createClientRedisCache() *cache.RedisCache {
+	cacheClient := cache.RedisCache{
+		Conn:   g.createRedisPool(),
+		Prefix: g.config.redis.prefix,
+	}
+	return &cacheClient
+}
+
+func (g *Golaravel) createRedisPool() *redis.Pool {
+	return &redis.Pool{
+		MaxIdle:     50,
+		MaxActive:   100000,
+		IdleTimeout: 240 * time.Second,
+		Dial: func() (redis.Conn, error) {
+			return redis.Dial("tcp",
+				g.config.redis.host,
+				redis.DialPassword(g.config.redis.password))
+		},
+		TestOnBorrow: func(c redis.Conn, t time.Time) error {
+			_, err := c.Do("PING")
+			return err
+		},
+	}
+}
 func (g *Golaravel) BuildDSN() string {
 	var dsn string
 	switch os.Getenv("DATABASE_TYPE") {
