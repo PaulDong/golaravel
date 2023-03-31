@@ -17,11 +17,16 @@ require (
 	github.com/joho/godotenv v1.5.1
 )
 
-require github.com/lib/pq v1.10.2 // indirect
+require (
+	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
+	github.com/lib/pq v1.10.2 // indirect
+	github.com/yuin/gopher-lua v1.1.0 // indirect
+)
 
 require (
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
 	github.com/alexedwards/scs/postgresstore v0.0.0-20230305153148-62e546ce9d2d
+	github.com/alicebob/miniredis/v2 v2.30.1
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect

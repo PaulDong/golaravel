@@ -114,12 +114,15 @@ func (c *RedisCache) Forget(str string) error {
 
 func (c *RedisCache) EmptyByMatch(str string) error {
 	key := fmt.Sprintf("%s:%s", c.Prefix, str)
+	conn := c.Conn.Get()
+	defer conn.Close()
 	keys, err := c.getKeys(key)
 	if err != nil {
 		return err
 	}
 	for _, x := range keys {
-		err := c.Forget(x)
+		// err := c.Forget(x)
+		_, err := conn.Do("DEL", x)
 		if err != nil {
 			return err
 		}
@@ -129,12 +132,15 @@ func (c *RedisCache) EmptyByMatch(str string) error {
 
 func (c *RedisCache) Empty() error {
 	key := fmt.Sprintf("%s:", c.Prefix)
+	conn := c.Conn.Get()
+	defer conn.Close()
 	keys, err := c.getKeys(key)
 	if err != nil {
 		return err
 	}
 	for _, x := range keys {
-		err := c.Forget(x)
+		// err := c.Forget(x)
+		_, err := conn.Do("DEL", x)
 		if err != nil {
 			return err
 		}
