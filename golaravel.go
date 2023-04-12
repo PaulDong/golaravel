@@ -13,6 +13,8 @@ import (
   "github.com/PaulDong/golaravel/render"
   "github.com/PaulDong/golaravel/session"
   "github.com/alexedwards/scs/v2"
+  "github.com/dgraph-io/badger/v3"
+  "github.com/robfig/cron/v3"
   "github.com/go-chi/chi/v5"
   "github.com/gomodule/redigo/redis"
   "github.com/joho/godotenv"
@@ -21,6 +23,7 @@ import (
 const version = "1.0.0"
 
 var myRedisCache *cache.RedisCache
+var myBadgerCache *cache.BadgerCache
 
 type Golaravel struct {
   AppName       string
@@ -37,6 +40,7 @@ type Golaravel struct {
   config        config
   EncryptionKey string
   Cache         cache.Cache
+  Scheduler     *cron.Cron
 }
 
 type config struct {
@@ -83,10 +87,22 @@ func (g *Golaravel) New(rootPath string) error {
     }
   }
 
+  if os.Getenv("CACHE") == "badger" {
+    myBadgerCache = g.createClientBadgerCache()
+    g.Cache = myBadgerCache
+    _, err := g.Scheduler.AddFunc("@daily", func () {
+      _ = myBadgerCache.Conn.RunValueLogGC(0.7)
+    })
+    if err != nil {
+      return err
+    }
+  }
+
   if os.Getenv("CACHE") == "redis" || os.Getenv("SESSION_TYPE") == "redis" {
     myRedisCache = g.createClientRedisCache()
     g.Cache = myRedisCache
   }
+  
   g.InfoLog = infoLog
   g.ErrorLog = errorLog
 
@@ -222,6 +238,13 @@ func (g *Golaravel) createClientRedisCache() *cache.RedisCache {
   return &cacheClient
 }
 
+func (g *Golaravel) createClientBadgerCache() *cache.BadgerCache {
+  cacheClient := cache.BadgerCache {
+    Conn:   g.createBadgerConn(),
+  }
+  return &cacheClient
+}
+
 func (g *Golaravel) createRedisPool() *redis.Pool {
   return &redis.Pool{
     MaxIdle:     50,
@@ -237,6 +260,14 @@ func (g *Golaravel) createRedisPool() *redis.Pool {
       return err
     },
   }
+}
+
+func (g *Golaravel) createBadgerConn() *badger.DB {
+  db, err := badger.Open(badger.DefaultOptions(g.RootPath + "/tmp/badger"))
+  if err != nil {
+    return nil
+  }
+  return db
 }
 
 func (g *Golaravel) BuildDSN() string {
