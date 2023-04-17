@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"os"
+	"path/filepath"
 	"time"
 
 	apimail "github.com/ainsleyclark/go-mail"
@@ -91,11 +93,11 @@ func (m *Mail) SendUsingAPI(msg Message, transport string) error {
 	if err != nil {
 		return err
 	}
-	formattedMessage, err := m.BuildHTMLMessage(msg)
+	formattedMessage, err := m.buildHTMLMessage(msg)
 	if err != nil {
 		return err
 	}
-	plainMessage, err := m.BuildPlainTextMessage(msg)
+	plainMessage, err := m.buildPlainTextMessage(msg)
 	if err != nil {
 		return err
 	}
@@ -108,7 +110,7 @@ func (m *Mail) SendUsingAPI(msg Message, transport string) error {
 	}
 
 	// add attachments
-	err = m.AddAttachments(msg, tx)
+	err = m.addAPIAttachments(msg, tx)
 	if err != nil {
 		return err
 	}
@@ -126,25 +128,26 @@ func (m *Mail) addAPIAttachments(msg Message, tx *apimail.Transmission) error {
 		var attachments []apimail.Attachment
 		for _, x := range msg.Attachments {
 			var attch apimail.Attachment
-			content, err := ioutil.ReadFile(x)
+			content, err := os.ReadFile(x)
 			if err != nil {
 				return err
 			}
 			fileName := filepath.Base(x)
 			attch.Bytes = content
-			attch.Filenmae = fileName
+			attch.Filename = fileName
 			attachments = append(attachments, attch)
 		}
-		tx.AddAttachments = attachments
+		tx.Attachments = attachments
 	}
+	return nil
 }
 
 func (m *Mail) SendSMTPMessage(msg Message) error {
-	formattedMessage, err := m.BuildHTMLMessage(msg)
+	formattedMessage, err := m.buildHTMLMessage(msg)
 	if err != nil {
 		return err
 	}
-	plainMessage, err := m.BuildPlainTextMessage(msg)
+	plainMessage, err := m.buildPlainTextMessage(msg)
 	if err != nil {
 		return err
 	}
@@ -192,7 +195,7 @@ func (m *Mail) getEncryption(e string) mail.Encryption {
 	}
 }
 
-func (m *Mail) BuildHTMLMessage(msg Message) (string, error) {
+func (m *Mail) buildHTMLMessage(msg Message) (string, error) {
 	templateToRender := fmt.Sprintf("%s/%s.html.tmpl", m.Templates, msg.Template)
 	t, err := template.New("email-html").Parse(templateToRender)
 	if err != nil {
@@ -213,7 +216,7 @@ func (m *Mail) BuildHTMLMessage(msg Message) (string, error) {
 	return formattedMessage, nil
 }
 
-func (m *Mail) BuildPlainTextMessage(msg Message) (string, error) {
+func (m *Mail) buildPlainTextMessage(msg Message) (string, error) {
 	templateToRender := fmt.Sprintf("%s/%s.plain.tmpl", m.Templates, msg.Template)
 	t, err := template.New("email-html").Parse(templateToRender)
 	if err != nil {
