@@ -51,6 +51,6 @@ func TestMain(m *testing.M) {
 
 	db, _ := badger.Open(badger.DefaultOptions("./testdata/tmp/badger"))
 	testBadgerCache.Conn = db
-	
+
 	os.Exit(m.Run())
 }

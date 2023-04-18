@@ -68,5 +68,6 @@ func showHelp() {
   make handler <name>   - creates a stub handler in the handlers directory
   make model <name>     - creates a new model in the models directory
 	make session          - creates a table in the database as a session store
+	make mail <name>      - creates two starter mail template in the mail directory
   `)
 }
