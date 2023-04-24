@@ -12,7 +12,7 @@ import (
 )
 
 func (g *Golaravel) ReadJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
-	maxBytes := 1048576	// one megabyte
+	maxBytes := 1048576 // one megabyte
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
 	dec := json.NewDecoder(r.Body)
@@ -84,11 +84,13 @@ func (g *Golaravel) Error500(w http.ResponseWriter, r *http.Request) {
 	g.ErrorStatus(w, http.StatusInternalServerError)
 }
 
-func (g *Golaravel) Error401(w http.ResponseWriter, r *http.Request) {
+// ErrorUnauthorized sends an unauthorized status (client is not known)
+func (g *Golaravel) ErrorUnauthorized(w http.ResponseWriter, r *http.Request) {
 	g.ErrorStatus(w, http.StatusUnauthorized)
 }
 
-func (g *Golaravel) Error403(w http.ResponseWriter, r *http.Request) {
+// ErrorForbidden returns a forbidden status message (client is known)
+func (g *Golaravel) ErrorForbidden(w http.ResponseWriter, r *http.Request) {
 	g.ErrorStatus(w, http.StatusForbidden)
 }
 
