@@ -13,3 +13,7 @@ coverage:
 ## build_cli: builds the command line tool golaravel and copies it to bnlogic
 build_cli:
 	@go build -o ../bnlogic/golaravel ./cmd/cli
+
+## build: builds the command line tool dist directory
+build:
+	@go build -o ./dist/golaravel ./cmd/cli
