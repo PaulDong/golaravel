@@ -85,7 +85,7 @@ func doNew(appName string) {
 
 	// create a makefile
 	if runtime.GOOS == "windows" {
-		source, err := os.Open(fmt.Sprintf("/%s/Makefile.windows", appName))
+		source, err := os.Open(fmt.Sprintf("%s/Makefile.windows", appName))
 		if err != nil {
 			exitGracefully(err)
 		}
@@ -100,7 +100,7 @@ func doNew(appName string) {
 			exitGracefully(err)
 		}
 	} else {
-		source, err := os.Open(fmt.Sprintf("/%s/Makefile.mac", appName))
+		source, err := os.Open(fmt.Sprintf("%s/Makefile.mac", appName))
 		if err != nil {
 			exitGracefully(err)
 		}
