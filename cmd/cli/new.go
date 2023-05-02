@@ -121,15 +121,31 @@ func doNew(appName string) {
 	color.Yellow("\tCreating go.mod file ...")
 	_ = os.Remove("./" + appName + "/go.mod")
 
-	data, err := templateFS.ReadFile("templates/go.mod.txt")
+	sourcePath = filepath.Join(parentPath, "/cmd/cli/templates/go.mod.txt")
+	sourceFile, err = os.Open(sourcePath)
 	if err != nil {
 		exitGracefully(err)
 	}
-	mod := string(data)
-	mod = strings.ReplaceAll(mod, "${APP_NAME}", appURL)
+	defer sourceFile.Close()
 
-	err = copyDataToFile([]byte(mod), "./" + appName + "/go.mod")
+	destPath = fmt.Sprintf("./%s/go.mod", appName)
+	destFile, err = os.Create(destPath)
 	if err != nil {
+		exitGracefully(err)
+	}
+	defer destFile.Close()
+
+	// Replace the string in the source file and write to the destination file
+	scanner = bufio.NewScanner(sourceFile)
+	for scanner.Scan() {
+		line := scanner.Text()
+		modifiedLine := strings.ReplaceAll(line, "${APP_NAME}", appURL)
+		_, err = destFile.WriteString(modifiedLine + "\n")
+		if err != nil {
+			exitGracefully(err)
+		}
+	}
+	if err = scanner.Err(); err != nil {
 		exitGracefully(err)
 	}
 
