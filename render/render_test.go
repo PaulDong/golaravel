@@ -14,9 +14,9 @@ var pageData = []struct {
 	errorMessage  string
 }{
 	{"go_page", "go", "home", false, "error rendering go template"},
-	{"go_page_no_template", "go", "nofile", true, "no error rendering non-existent go template, when one is expected"},
+	{"go_page_no_template", "go", "no-file", true, "no error rendering non-existent go template, when one is expected"},
 	{"jet_page", "jet", "home", false, "error rendering jet template"},
-	{"jet_page_no_template", "jet", "nofile", true, "no error rendering non-existent jet template, when one is expected"},
+	{"jet_page_no_template", "jet", "no-file", true, "no error rendering non-existent jet template, when one is expected"},
 	{"invalid_render_engine", "foo", "home", true, "no error rendering non-existent render engine, when one is expected"},
 }
 
@@ -59,7 +59,7 @@ func TestRender_GoPage(t *testing.T) {
 		t.Error("Error rendering page", err)
 	}
 
-	err = testRenderer.Page(w, r, "nofile", nil, nil)
+	err = testRenderer.Page(w, r, "no-file", nil, nil)
 	if err == nil {
 		t.Error("Error rendering non-existent template")
 	}
@@ -78,7 +78,7 @@ func TestRender_JetPage(t *testing.T) {
 		t.Error("Error rendering page", err)
 	}
 
-	err = testRenderer.Page(w, r, "nofile", nil, nil)
+	err = testRenderer.Page(w, r, "no-file", nil, nil)
 	if err == nil {
 		t.Error("Error rendering non-existent template")
 	}

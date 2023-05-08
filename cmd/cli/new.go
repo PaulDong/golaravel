@@ -1,15 +1,14 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"strings"
+	"text/template"
 
 	"github.com/fatih/color"
 	"github.com/go-git/go-git/v5"
@@ -46,40 +45,57 @@ func doNew(appName string) {
 
 	// create a ready to go .env file
 	color.Yellow("\tCreating .env file ...")
-	currentPath, err := os.Getwd()
+	// currentPath, err := os.Getwd()
+	// if err != nil {
+	// 	exitGracefully(err)
+	// }
+
+	// // Get the parent directory of the current working directory
+	// parentPath := filepath.Dir(currentPath)
+	tmpl, err := template.ParseGlob("templates/env.txt")
 	if err != nil {
 		exitGracefully(err)
 	}
-
-	// Get the parent directory of the current working directory
-	parentPath := filepath.Dir(currentPath)
-	sourcePath := filepath.Join(parentPath, "/cmd/cli/templates/env.txt")
-	sourceFile, err := os.Open(sourcePath)
+	content, err := templateFS.ReadFile("templates/env.txt")
+	// data, err := templateFS.ReadFile(sourcePath)
+	// sourceFile, err := os.Open(sourcePath)
 	if err != nil {
 		exitGracefully(err)
 	}
-	defer sourceFile.Close()
+	// defer sourceFile.Close()
 
-	// Create the destination file
-	destPath := fmt.Sprintf("./%s/.env", appName)
-	destFile, err := os.Create(destPath)
+	// // Create the destination file
+	// destPath := fmt.Sprintf("./%s/.env", appName)
+	// destFile, err := os.Create(destPath)
+	// if err != nil {
+	// 	exitGracefully(err)
+	// }
+	// defer destFile.Close()
+
+	// // Replace the string in the source file and write to the destination file
+	// scanner := bufio.NewScanner(data)
+	// for scanner.Scan() {
+	// 	line := scanner.Text()
+	// 	modifiedLine := strings.ReplaceAll(line, "${APP_NAME}", appName)
+	// 	modifiedLine = strings.ReplaceAll(modifiedLine, "${KEY}", gol.RandomString(32))
+	// 	_, err = destFile.WriteString(modifiedLine + "\n")
+	// 	if err != nil {
+	// 		exitGracefully(err)
+	// 	}
+	// }
+	// if err = scanner.Err(); err != nil {
+	// 	exitGracefully(err)
+	// }
+	env := string(content)
+	env = strings.ReplaceAll(env, "${APP_NAME}", appName)
+	env = strings.ReplaceAll(env, "${KEY}", gol.RandomString(32))
+	_, err = tmpl.New(fmt.Sprintf("./%s/.env", appName)).Parse(string(env))
 	if err != nil {
 		exitGracefully(err)
 	}
-	defer destFile.Close()
-
-	// Replace the string in the source file and write to the destination file
-	scanner := bufio.NewScanner(sourceFile)
-	for scanner.Scan() {
-		line := scanner.Text()
-		modifiedLine := strings.ReplaceAll(line, "${APP_NAME}", appName)
-		modifiedLine = strings.ReplaceAll(modifiedLine, "${KEY}", gol.RandomString(32))
-		_, err = destFile.WriteString(modifiedLine + "\n")
-		if err != nil {
-			exitGracefully(err)
-		}
-	}
-	if err = scanner.Err(); err != nil {
+	err = tmpl.ExecuteTemplate(os.Stdout, fmt.Sprintf("./%s/.env", appName), nil)
+	// err = copyDataToFile([]byte(env), )
+	if err != nil {
 		exitGracefully(err)
 	}
 
@@ -121,31 +137,49 @@ func doNew(appName string) {
 	color.Yellow("\tCreating go.mod file ...")
 	_ = os.Remove("./" + appName + "/go.mod")
 
-	sourcePath = filepath.Join(parentPath, "/cmd/cli/templates/go.mod.txt")
-	sourceFile, err = os.Open(sourcePath)
+	tmpl, err = template.ParseGlob("templates/go.mod.txt")
 	if err != nil {
 		exitGracefully(err)
 	}
-	defer sourceFile.Close()
-
-	destPath = fmt.Sprintf("./%s/go.mod", appName)
-	destFile, err = os.Create(destPath)
+	content, err = templateFS.ReadFile("templates/go.mod.txt")
+	// sourcePath = filepath.Join(parentPath, "/cmd/cli/templates/go.mod.txt")
+	// data, err = templateFS.ReadFile(sourcePath)
+	// sourceFile, err = os.Open(sourcePath)
 	if err != nil {
 		exitGracefully(err)
 	}
-	defer destFile.Close()
 
-	// Replace the string in the source file and write to the destination file
-	scanner = bufio.NewScanner(sourceFile)
-	for scanner.Scan() {
-		line := scanner.Text()
-		modifiedLine := strings.ReplaceAll(line, "${APP_NAME}", appURL)
-		_, err = destFile.WriteString(modifiedLine + "\n")
-		if err != nil {
-			exitGracefully(err)
-		}
+	// defer sourceFile.Close()
+
+	// destPath = fmt.Sprintf("./%s/go.mod", appName)
+	// destFile, err = os.Create(destPath)
+	// if err != nil {
+	// 	exitGracefully(err)
+	// }
+	// defer destFile.Close()
+
+	// // Replace the string in the source file and write to the destination file
+	// scanner = bufio.NewScanner(sourceFile)
+	// for scanner.Scan() {
+	// 	line := scanner.Text()
+	// 	modifiedLine := strings.ReplaceAll(line, "${APP_NAME}", appURL)
+	// 	_, err = destFile.WriteString(modifiedLine + "\n")
+	// 	if err != nil {
+	// 		exitGracefully(err)
+	// 	}
+	// }
+	// if err = scanner.Err(); err != nil {
+	// 	exitGracefully(err)
+	// }
+	env = string(content)
+	env = strings.ReplaceAll(env, "${APP_NAME}", appURL)
+	_, err = tmpl.New(fmt.Sprintf("./%s/go.mod", appName)).Parse(string(env))
+	if err != nil {
+		exitGracefully(err)
 	}
-	if err = scanner.Err(); err != nil {
+	err = tmpl.ExecuteTemplate(os.Stdout, fmt.Sprintf("./%s/go.mod", appName), nil)
+	// err = copyDataToFile([]byte(env), fmt.Sprintf("./%s/go.mod", appName))
+	if err != nil {
 		exitGracefully(err)
 	}
 

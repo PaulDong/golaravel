@@ -42,11 +42,14 @@ func (c *Render) defaultData(td *TemplateData, r *http.Request) *TemplateData {
 	td.ServerName = c.ServerName
 	td.CSRFToken = nosurf.Token(r)
 	td.Port = c.Port
-	if c.Session.Exists(r.Context(), "userID") {
-		td.IsAuthenticated = true
-	}
+	// if c.Session.Exists(r.Context(), "userID") {
+	// 	td.IsAuthenticated = true
+	// }
+	// td.Error = c.Session.PopString(r.Context(), "error")
+	// td.Flash = c.Session.PopString(r.Context(), "flash")
 	return td
 }
+
 func (c *Render) Page(w http.ResponseWriter, r *http.Request, view string, variables, data interface{}) error {
 	switch strings.ToLower(c.Renderer) {
 	case "go":
