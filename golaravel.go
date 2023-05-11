@@ -88,7 +88,7 @@ func (g *Golaravel) New(rootPath string) error {
 	infoLog, errorLog := g.startLoggers()
 
 	// connect to database
-	if os.Getenv("DATABASE_TYPE") == "" {
+	if os.Getenv("DATABASE_TYPE") != "" {
 		db, err := g.OpenDB(os.Getenv("DATABASE_TYPE"), g.BuildDSN())
 		if err != nil {
 			errorLog.Println(err)
