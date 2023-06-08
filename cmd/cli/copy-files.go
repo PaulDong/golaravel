@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-// go:embed templates
+//go:embed templates
 var templateFS embed.FS
 
 func copyFileFromTemplate(templatePath, targetFile string) error {
@@ -17,12 +17,10 @@ func copyFileFromTemplate(templatePath, targetFile string) error {
 	data, err := templateFS.ReadFile(templatePath)
 	if err != nil {
 		exitGracefully(err)
-		return err
 	}
 	err = copyDataToFile(data, targetFile)
 	if err != nil {
 		exitGracefully(err)
-		return err
 	}
 
 	return nil
