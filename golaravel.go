@@ -318,8 +318,8 @@ func (g *Golaravel) createRedisPool() *redis.Pool {
 				g.config.redis.host,
 				redis.DialPassword(g.config.redis.password))
 		},
-		TestOnBorrow: func(c redis.Conn, t time.Time) error {
-			_, err := c.Do("PING")
+		TestOnBorrow: func(conn redis.Conn, t time.Time) error {
+			_, err := conn.Do("PING")
 			return err
 		},
 	}
