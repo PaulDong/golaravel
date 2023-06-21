@@ -1,7 +1,6 @@
 package mailer
 
 import (
-	"errors"
 	"testing"
 )
 
@@ -34,14 +33,14 @@ func TestMail_SendUsingChan(t *testing.T) {
 	mailer.Jobs <- msg
 	res := <-mailer.Results
 	if res.Error != nil {
-		t.Error(errors.New("failed to send over channel"))
+		t.Error("failed to send over channel")
 	}
 
 	msg.To = "not_an_email_address"
 	mailer.Jobs <- msg
 	res = <-mailer.Results
 	if res.Error == nil {
-		t.Error(errors.New("no error received with invalid to address"))
+		t.Error("no error received with invalid to address")
 	}
 }
 
@@ -61,7 +60,7 @@ func TestMail_SendUsingAPI(t *testing.T) {
 	err := mailer.SendUsingAPI(msg, "unknown")
 
 	if err == nil {
-		t.Error(errors.New("no error received, but it should be"))
+		t.Error("no error received, but it should be")
 	}
 	mailer.API = ""
 	mailer.APIKey = ""
@@ -119,7 +118,7 @@ func TestMail_send(t *testing.T) {
 	err = mailer.Send(msg)
 
 	if err == nil {
-		t.Error(errors.New("no error received, but it should be"))
+		t.Error("no error received, but it should be")
 	}
 	mailer.API = ""
 	mailer.APIKey = ""
@@ -140,6 +139,6 @@ func TestMail_ChooseAPI(t *testing.T) {
 	err := mailer.ChooseAPI(msg)
 
 	if err == nil {
-		t.Error(errors.New("no error received, but it should be"))
+		t.Error("no error received, but it should be")
 	}
 }
