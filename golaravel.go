@@ -11,6 +11,7 @@ import (
 
 	"github.com/CloudyKit/jet/v6"
 	"github.com/PaulDong/golaravel/cache"
+	"github.com/PaulDong/golaravel/filesystems/miniofilesystem"
 	"github.com/PaulDong/golaravel/mailer"
 	"github.com/PaulDong/golaravel/render"
 	"github.com/PaulDong/golaravel/session"
@@ -47,6 +48,7 @@ type Golaravel struct {
 	Scheduler     *cron.Cron
 	Mail          mailer.Mail
 	Server        Server
+	FileSystem    map[string]interface{}
 }
 
 type Server struct {
@@ -198,6 +200,7 @@ func (g *Golaravel) New(rootPath string) error {
 	}
 
 	g.createRenderer()
+	g.FileSystem = g.createFileSystems()
 	go g.Mail.ListenForMail()
 
 	return nil
@@ -352,4 +355,26 @@ func (g *Golaravel) BuildDSN() string {
 
 	}
 	return dsn
+}
+
+func (g *Golaravel) createFileSystems() map[string]interface{} {
+	fileSystems := make(map[string]interface{})
+
+	if os.Getenv("MINIO_SECRET") != "" {
+		useSSL := false
+		if strings.ToLower(os.Getenv("MINIO_USESSL")) == "true" {
+			useSSL = true
+		}
+		minio := miniofilesystem.Minio{
+			Endpoint: os.Getenv("MINIO_ENDPOINT"),
+			Key:      os.Getenv("MINIO_KEY"),
+			Secret:   os.Getenv("MINIO_SECRET"),
+			UseSSL:   useSSL,
+			Region:   os.Getenv("MINIO_REGION"),
+			Bucket:   os.Getenv("MINIO_BUCKET"),
+		}
+		fileSystems["MINIO"] = minio
+	}
+
+	return fileSystems
 }
