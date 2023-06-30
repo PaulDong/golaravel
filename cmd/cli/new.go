@@ -91,6 +91,17 @@ func doNew(appName string) {
 			exitGracefully(err)
 		}
 	}
+	read, err := os.ReadFile(fmt.Sprintf("./%s/Makefile", appName))
+	if err != nil {
+		exitGracefully(err)
+	}
+
+	newContents := strings.Replace(string(read), "${APP_NAME}", appName, -1)
+	// write new contents to file
+	err = os.WriteFile(fmt.Sprintf("./%s/Makefile", appName), []byte(newContents), 0)
+	if err != nil {
+		exitGracefully(err)
+	}
 	_ = os.Remove("./" + appName + "/Makefile.mac")
 	_ = os.Remove("./" + appName + "/Makefile.windows")
 	// update the go.mod file
@@ -106,7 +117,7 @@ func doNew(appName string) {
 	mod := string(content)
 	mod = strings.ReplaceAll(mod, "${APP_NAME}", appURL)
 
-	err = copyDataToFile([]byte(mod), "./"+ appName +"/go.mod")
+	err = copyDataToFile([]byte(mod), "./"+appName+"/go.mod")
 	if err != nil {
 		exitGracefully(err)
 	}
