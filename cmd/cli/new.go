@@ -99,7 +99,7 @@ func doNew(appName string) {
 		exitGracefully(err)
 	}
 
-	data := strings.Replace(string(read), "${APP_NAME}", appName, -1)
+	data := strings.ReplaceAll(string(read), "${APP_NAME}", appName)
 	// write new contents to file
 	err = os.WriteFile(fmt.Sprintf("./%s/Makefile", appName), []byte(data), 0)
 	if err != nil {
