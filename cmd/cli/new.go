@@ -99,7 +99,7 @@ func doNew(appName string) {
 		exitGracefully(err)
 	}
 
-	data := strings.ReplaceAll(string(read), "${APP_NAME}", appName)
+	data := strings.ReplaceAll(string(read), "${BINARY_NAME}", appName)
 	// write new contents to file
 	err = os.WriteFile(fmt.Sprintf("./%s/Makefile", appName), []byte(data), 0)
 	if err != nil {
@@ -116,7 +116,7 @@ func doNew(appName string) {
 	}
 
 	mod := string(content)
-	mod = strings.ReplaceAll(mod, "{BINARY_NAME}", appURL)
+	mod = strings.ReplaceAll(mod, "${APP_NAME}", appURL)
 
 	err = copyDataToFile([]byte(mod), "./"+appName+"/go.mod")
 	if err != nil {
