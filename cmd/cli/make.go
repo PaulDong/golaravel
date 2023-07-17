@@ -25,11 +25,25 @@ func doMake(arg2, arg3 string) error {
 		fileName := fmt.Sprintf("%d_%s", time.Now().UnixMicro(), arg3)
 		upFile := gol.RootPath + "/migrations/" + fileName + "." + dbType + ".up.sql"
 		downFile := gol.RootPath + "/migrations/" + fileName + "." + dbType + ".down.sql"
-		err := copyFileFromTemplate("templates/migrations/migration."+dbType+".up.sql", upFile)
+//		err := copyFileFromTemplate("templates/migrations/migration."+dbType+".up.sql", upFile)
+		content, err := os.ReadFile("templates/migrations/migration."+dbType+".up.sql")
 		if err != nil {
 			exitGracefully(err)
 		}
-		err = copyFileFromTemplate("templates/migrations/migration."+dbType+".down.sql", downFile)
+		handler := string(content)
+		handler = strings.ReplaceAll(handler, "$TABLENAME$", arg3)
+		err = os.WriteFile(upFile, []byte(handler), 0644)
+		if err != nil {
+			exitGracefully(err)
+		}
+		content, err = os.ReadFile("templates/migrations/migration."+dbType+".down.sql")
+		if err != nil {
+			exitGracefully(err)
+		}
+		handler = string(content)
+		handler = strings.ReplaceAll(handler, "$TABLENAME$", arg3)
+		err = os.WriteFile(downFile, []byte(handler), 0644)
+//		err = copyFileFromTemplate("templates/migrations/migration."+dbType+".down.sql", downFile)
 		if err != nil {
 			exitGracefully(err)
 		}
