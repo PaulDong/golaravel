@@ -22,18 +22,17 @@ func doMake(arg2, arg3 string) error {
 		if arg3 == "" {
 			exitGracefully(errors.New("you must give the migration a name"))
 		}
-		fileName := fmt.Sprintf("%d_%s", time.Now().UnixMicro(), arg3)
-		upFile := gol.RootPath + "/migrations/" + fileName + "." + dbType + ".up.sql"
-		downFile := gol.RootPath + "/migrations/" + fileName + "." + dbType + ".down.sql"
-		// err := copyFileFromTemplate("templates/migrations/migration."+dbType+".up.sql", upFile)
-		plur := pluralize.NewClient()
-
 		var tableName = arg3
+    plur := pluralize.NewClient()
 		if plur.IsPlural(arg3) {
 			tableName = strings.ToLower(tableName)
 		} else {
 			tableName = strings.ToLower(plur.Plural(arg3))
 		}
+		fileName := fmt.Sprintf("%d_%s", time.Now().UnixMicro(), tableName)
+		upFile := gol.RootPath + "/migrations/" + fileName + "." + dbType + ".up.sql"
+		downFile := gol.RootPath + "/migrations/" + fileName + "." + dbType + ".down.sql"
+		// err := copyFileFromTemplate("templates/migrations/migration."+dbType+".up.sql", upFile)
 		content, err := templateFS.ReadFile("templates/migrations/migration." + dbType + ".up.sql")
 		if err != nil {
 			exitGracefully(err)
