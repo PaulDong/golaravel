@@ -30,6 +30,9 @@ func doMake(arg2, arg3 string) error {
 			tableName = strings.ToLower(plur.Plural(arg3))
 		}
 		fileName := fmt.Sprintf("%d_%s", time.Now().UnixMicro(), tableName)
+		if os.Getenv("TABLE_PREFIX") != "" {
+			tableName = os.Getenv("TABLE_PREFIX") + tableName
+		}
 		upFile := gol.RootPath + "/migrations/" + fileName + "." + dbType + ".up.sql"
 		downFile := gol.RootPath + "/migrations/" + fileName + "." + dbType + ".down.sql"
 		// err := copyFileFromTemplate("templates/migrations/migration."+dbType+".up.sql", upFile)
@@ -76,6 +79,9 @@ func doMake(arg2, arg3 string) error {
 			tableName = strings.ToLower(tableName)
 		} else {
 			tableName = strings.ToLower(plur.Plural(arg3))
+		}
+		if os.Getenv("TABLE_PREFIX") != "" {
+			tableName = os.Getenv("TABLE_PREFIX") + tableName
 		}
 		fileName := gol.RootPath + "/data/" + strings.ToLower(modelName) + ".go"
 		if fileExists(fileName) {
